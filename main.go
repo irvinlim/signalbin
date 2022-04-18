@@ -30,7 +30,7 @@ var (
 			"  signalbin -t 60s --second-signal-quit",
 		}, "\n"),
 		Long: "This utility traps on a list of signals to aid with testing of signal handling routines.",
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return Run(args)
 		},

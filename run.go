@@ -7,6 +7,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 	"k8s.io/klog/v2"
 )
@@ -16,15 +17,9 @@ func Run(args []string) error {
 	klog.Info("starting signalbin")
 
 	// Parse signals to trap
-	var signals []os.Signal
-	for _, arg := range args {
-		parsed, err := ParseSignals(arg)
-		if err != nil {
-			return err
-		}
-		for _, sig := range parsed {
-			signals = append(signals, sig)
-		}
+	signals, err := ParseSignalsFromArgs(args)
+	if err != nil {
+		return errors.Wrapf(err, "cannot parse signals from args")
 	}
 	if len(signals) == 0 {
 		return fmt.Errorf("no signals specified")
@@ -32,7 +27,10 @@ func Run(args []string) error {
 
 	// Trap signals
 	done := make(chan os.Signal, 2)
-	signal.Notify(done, signals...)
+	for _, sig := range signals {
+		signal.Notify(done, sig)
+	}
+	klog.Infof("trapping on the following signals: %v", signals)
 
 	HandleSignals(done)
 	return nil

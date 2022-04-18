@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
 
+	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
 )
 
@@ -38,5 +40,29 @@ func ParseSignals(s string) ([]syscall.Signal, error) {
 		}
 		signals = append(signals, signal)
 	}
+	return signals, nil
+}
+
+// ParseSignalsFromArgs parses a list of arguments into a list of signals.
+func ParseSignalsFromArgs(args []string) ([]syscall.Signal, error) {
+	sigMap := make(map[int]syscall.Signal)
+	for _, arg := range args {
+		parsed, err := ParseSignals(arg)
+		if err != nil {
+			return nil, errors.Wrapf(err, "cannot parse arg: %v", arg)
+		}
+		for _, sig := range parsed {
+			sigMap[int(sig)] = sig
+		}
+	}
+
+	signals := make([]syscall.Signal, 0, len(sigMap))
+	for _, sig := range sigMap {
+		signals = append(signals, sig)
+	}
+	sort.Slice(signals, func(i, j int) bool {
+		return signals[i] < signals[j]
+	})
+
 	return signals, nil
 }
