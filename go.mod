@@ -1,4 +1,4 @@
-module github.com/irvinlim/go-signalbin
+module github.com/irvinlim/signalbin
 
 go 1.18
 

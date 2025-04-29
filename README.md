@@ -8,7 +8,15 @@ Like httpbin, but for UNIX signals.
 
 `signalbin` is a small utility written in Go to test interactions with signal handlers.
 
-## Docker
+## Installation
+
+### Via `go install`
+
+```shell
+go install github.com/irvinlim/signalbin@latest
+```
+
+### Via Docker image
 
 ```shell
 docker run --rm -it irvinlim/signalbin SIGINT,SIGTERM -sq -t=30s
